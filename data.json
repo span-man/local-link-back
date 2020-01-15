@@ -1,16 +1,1 @@
-{
-    "dataList": [
-        {
-            "id": 1,
-            "label": "Baidu",
-            "link": "http://www.baidu.com",
-            "count": 0
-        },
-        {
-            "id": 2,
-            "label": "taobao",
-            "link": "http://www.taobao.com",
-            "count": 0
-        }
-    ]
-}
+{"dataList":[{"id":1,"label":"baidu","link":"http://www.baidu.com","count":0},{"id":2,"label":"taobao","link":"http://www.taobao.com","count":0}]}

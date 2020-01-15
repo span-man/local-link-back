@@ -1,44 +1,22 @@
-const fs = require("fs");
 const koa = require("koa");
-const app = new koa();
-let router = require('koa-router')();
+const fs = require("fs");
 const cors = require("koa2-cors");
-const bodyparser = require("koa-bodyparser");
-const utilsFun = require("./utilsFun");
+let router = require('./router.js');
+const koaBodyparser = require("koa-bodyparser");
 
-app.use(bodyparser());
+const app = new koa();
+
 app.use(cors());
+app.use(koaBodyparser());
+// app.use(koaBodyparser.urlencoded({ extended: false }))
 
-router
-    .get('/', (ctx) => {
-        ctx.body = 'ok';
-    })
-    .get('/dataList', (ctx) => {
-        try {
-            let dataList = fs.readFileSync('./data.json', 'utf-8');
-            // console.log('dataList-->', dataList);
-            ctx.body = {
-                success: true,
-                dataList: JSON.parse(dataList).dataList
-            };
-        } catch (error) {
-            console.log(error);
-            ctx.body = {
-                success: false
-            }
-        }
-    })
-    // 根据ID增加其点击数量
-    .post('/changeDataById', (ctx) => {
-        return utilsFun.changeCount()
-    })
-    // 增加 新的连接
-    .post('/addLink', (ctx) => {
-        return utilsFun.addNewLink()
-    })
+app.use(async function (ctx, next) {
+    await next();
+    if (ctx.body || !ctx.idempotent) return
+    ctx.redirect('./404.html')
+})
 
-app
-    .use(router.routes())
-    .use(router.allowedMethods());
+app.use(router.routes())
+app.use(router.allowedMethods());
 
-app.listen(7777, console.log('7777 link is ok.'))
+app.listen(7778, console.log('7778 link is ok.'))
