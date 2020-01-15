@@ -1,8 +1,16 @@
 const fs = require('fs');
+let makeId = () => {
+    return '1' + String(Math.random()).substring(2, 14)
+};
+let myReadFile = () => {
+    let allData = fs.readFileSync('./data.json', 'utf-8');
+    return JSON.parse(allData);
+};
+let myWriteFile = (dataJson) => {
+    fs.writeFileSync('./data.json', JSON.stringify(dataJson), 'utf-8')
+};
 const allFun = {
-    makeId: () => {
-        return '1' + String(Math.random()).substring(2, 14)
-    },
+
     // 记录点击次数
     changeCount: (_id) => {
         try {
@@ -13,7 +21,7 @@ const allFun = {
                     item.count++
                 }
             })
-            fs.writeFileSync(JSON.stringify(dataJson))
+            myWriteFile(dataJson);
             return {
                 success: true
             }
@@ -26,11 +34,10 @@ const allFun = {
     },
     findAll: () => {
         try {
-            let dataList = fs.readFileSync('./data.json', 'utf-8');
-            // console.log('dataList-->', dataList);
+            let dataJson = myReadFile();
             return {
                 success: true,
-                dataList: JSON.parse(dataList).dataList
+                dataList: dataJson.dataList
             };
         } catch (error) {
             console.log(error);
@@ -41,30 +48,32 @@ const allFun = {
     },
     addNewLink: (linkObj) => {
         try {
-            let allData = fs.readFileSync('./data.json', 'utf-8');
-            let dataJson = JSON.parse(allData);
+            let dataJson = myReadFile();
             dataJson.dataList.push({
-                "id": this.makeId(),
+                "id": makeId(),
                 "label": linkObj.label,
                 "link": linkObj.link,
+                "img": linkObj.img || "",
                 "count": 0
             })
-            fs.writeFileSync('./data.json', dataJson, 'utf-8')
+            console.log('dataJson.dataList--->', dataJson.dataList);
+            myWriteFile(dataJson);
             return {
-                success: true
+                success: true,
+                msg: '新增成功'
             }
         } catch (error) {
             return {
-                success: false
+                success: false,
+                msg: '新增失败'
             }
         }
     },
     delLinkById: (_id) => {
         try {
-            let allData = fs.readFileSync('./data.json', 'utf-8');
-            let dataJson = JSON.parse(allData);
+            let dataJson = myReadFile();
             dataJson.dataList = dataJson.dataList.filter(item => item.id != _id)
-            fs.writeFileSync('./data.json', dataJson, 'utf-8')
+            myWriteFile(dataJson);
             return {
                 success: true
             }
@@ -76,10 +85,10 @@ const allFun = {
     },
     updateByItem: (_item) => {
         try {
-            let allData = fs.readFileSync('./data.json', 'utf-8');
-            let dataJson = JSON.parse(allData);
-            console.log('111 dataJson--->', dataJson)
-            dataJson.dataList = dataJson.dataList.map(item => {
+            let dataJson = myReadFile();
+            let allArr = [];
+
+            dataJson.dataList.map(item => {
                 if (item.id == _item.id) {
                     if (_item.label) {
                         item.label = _item.label
@@ -92,11 +101,11 @@ const allFun = {
                     }
                     console.log('every item--->', item)
                 }
-                return item
+                allArr.push(item);
             })
+            dataJson.dataList = allArr;
             console.log('222 dataJson--->', (dataJson))
-            console.log('333 JSON.stringify(dataJson)--->', JSON.stringify(dataJson))
-            fs.writeFileSync('./data.json', JSON.stringify(dataJson), 'utf-8')
+            myWriteFile(dataJson);
             return {
                 success: true
             }
